@@ -32,8 +32,17 @@
 # __time_total__
 # The total time, in seconds, that the full operation lasted.
 #
-# __num_connects   
+# __num_connects__   
 # Number of new connects made in the recent transfer.
+#
+# __size_download__
+# The total amount of bytes that were downloaded.
+#
+# __size_request__
+# The total amount of bytes that were sent in the HTTP request.
+
+
+
 
 if [[ $# -lt 1 ]]
 then
@@ -74,6 +83,8 @@ do
             "remote":  "%{remote_ip}:%{remote_port}",\n
          "http_code":  %{http_code},\n
       "num_connects":  %{num_connects},\n
+      "size_request":  %{size_request},\n
+     "size_download":  %{size_download},\n
    "time_namelookup":  %{time_namelookup},\n
   "time_pretransfer":  %{time_pretransfer},\n
 "time_starttransfer":  %{time_starttransfer},\n
@@ -81,5 +92,6 @@ do
       "time_connect":  %{time_connect},\n
         "time_total":  %{time_total}\n
 EOF
+echo "         \"exit_code\":  $?"
 done
 echo "}]"
