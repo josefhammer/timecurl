@@ -46,8 +46,8 @@
 
 if [[ $# -lt 1 ]]
 then
-    echo "Usage: $0 [loop <numRequests>] [sleep <numSeconds>] [curl options / URL]"
-    echo "Use '-L' to follow redirections."
+    echo "Usage: $0 [loop <numRequests>] [sleep <numSeconds>] [Curl options] URL"
+    echo "Pass '-L' for Curl to follow redirections."
     echo ""
     exit 1
 fi
