@@ -64,9 +64,7 @@ if [[ $1 == "loop" ]]; then
 fi
 if [[ $1 == "sleep" ]]; then
     shift
-    if [[ $1 -gt 0 ]]; then
-        SLEEP=$1
-    fi
+    SLEEP=$1
     shift
 fi
 
@@ -76,7 +74,9 @@ for ((i=1; i<=$NUM_REQUESTS; i++))
 do
     if [[ $i -gt 1 ]]; then 
         echo "},{"
-        sleep "$SLEEP"
+        if [[ $SLEEP -gt 0 ]]; then
+            sleep "$SLEEP"
+        fi
     fi
     
     curl -s -o /dev/null -w @- "$@" <<'EOF'
