@@ -128,6 +128,8 @@ else
     #
     COUNTER=0
     while read -a ADDR; do 
+        >&2 echo "# ${ADDR[@]}"  # print input on stderr for monitoring
+
         [[ $ADDR =~ ^#.* ]] && continue  # ignore comment lines starting with '#'
 
         COUNTER=$((COUNTER+1))
