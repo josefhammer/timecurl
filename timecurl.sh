@@ -128,6 +128,8 @@ else
     #
     COUNTER=0
     while read -a ADDR; do 
+        [[ $ADDR =~ ^#.* ]] && continue  # ignore comment lines starting with '#'
+
         COUNTER=$((COUNTER+1))
 
         if [[ $COUNTER -gt 1 ]]; then
