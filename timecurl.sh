@@ -41,45 +41,64 @@
 # __size_request__
 # The total amount of bytes that were sent in the HTTP request.
 
+NUM_REQUESTS=1
+SLEEP=0
+STDIN=0
+ID=
 
 
+# Parse command line params
+#
+while [[ $1 == "--loop" ]] || [[ $1 == "--sleep" ]] || [[ $1 == "--id" ]] || [[ $1 == "--stdin" ]]; do
+    if [[ $1 == "--loop" ]]; then
+        shift
+        if [[ $1 -gt 1 ]]; then
+            NUM_REQUESTS=$1
+        fi
+        shift
+    fi
+    if [[ $1 == "--sleep" ]]; then
+        shift
+        SLEEP=$1
+        shift
+    fi
+    if [[ $1 == "--id" ]]; then
+        shift
+        ORIG_ID=$1
+        ID=$1
+        shift
+    fi
+    if [[ $1 == "--stdin" ]]; then  # Shall we read the URL(s) from STDIN?
+        shift
+        STDIN=1
+    fi
+done
 
-if [[ $# -lt 1 ]]
+
+# Help message for the options
+#
+if [[ $# -lt 1 ]] && [[ $STDIN -eq 0 ]]
 then
-    echo "Usage: $0 [loop <numRequests>] [sleep <numSeconds>] [Curl options] URL"
+    echo "Usage: $0 [--loop <numRequests>] [--sleep <numSeconds>] [--id <ID>] [--stdin] [<Curl options>] [<URL>]"
     echo "Pass '-L' for Curl to follow redirections."
     echo ""
     exit 1
 fi
 
-NUM_REQUESTS=1
-SLEEP=0
 
-if [[ $1 == "loop" ]]; then
-    shift
-    if [[ $1 -gt 1 ]]; then
-        NUM_REQUESTS=$1
-    fi
-    shift
-fi
-if [[ $1 == "sleep" ]]; then
-    shift
-    SLEEP=$1
-    shift
-fi
-
-echo "[{"
-
-for ((i=1; i<=$NUM_REQUESTS; i++))
-do
-    if [[ $i -gt 1 ]]; then 
-        echo "},{"
-        if [[ $SLEEP -gt 0 ]]; then
-            sleep "$SLEEP"
+# Main loop
+#
+mainCurlLoop() {
+    for ((i=1; i<=$NUM_REQUESTS; i++))
+    do
+        if [[ $i -gt 1 ]]; then 
+            echo "},{"
+            if [[ $SLEEP -gt 0 ]]; then
+                sleep "$SLEEP"
+            fi
         fi
-    fi
-    
-    curl -s -o /dev/null -w @- "$@" <<'EOF'
+
+        curl -s -o /dev/null -w @- "$@" <<'EOF'
             "remote":  "%{remote_ip}:%{remote_port}",\n
          "http_code":  %{http_code},\n
       "num_connects":  %{num_connects},\n
@@ -90,8 +109,38 @@ do
 "time_starttransfer":  %{time_starttransfer},\n
 \n
       "time_connect":  %{time_connect},\n
-        "time_total":  %{time_total}\n
+        "time_total":  %{time_total},\n
 EOF
-echo "         \"exit_code\":  $?"
-done
+    echo "         \"exit_code\":  $?,"
+    echo "                \"id\":  \"$ID\""
+    done
+}
+
+
+# *** MAIN ***
+#
+echo "[{"
+
+if [[ $STDIN -eq 0 ]]; then
+    mainCurlLoop "$@"
+else
+    # read URLs from stdin (one per line; format: [<ID>] URL)
+    #
+    COUNTER=0
+    while read -a ADDR; do 
+        COUNTER=$((COUNTER+1))
+
+        if [[ $COUNTER -gt 1 ]]; then
+            echo "},{"
+        fi
+        if [[ ${#ADDR[@]} -gt 1 ]]; then  # if two elements available: use first as ID
+            ID="${ADDR[0]}"
+            ADDR[0]=${ADDR[1]}
+        else
+            ID=$ORIG_ID
+        fi
+        mainCurlLoop "$@" ${ADDR[0]}
+    done
+fi
+
 echo "}]"
