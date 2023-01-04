@@ -80,7 +80,7 @@ done
 if [[ $# -lt 1 ]] && [[ $STDIN -eq 0 ]]
 then
     echo "Usage: $0 [--loop <numRequests>] [--sleep <numSeconds>] [--id <ID>] [--stdin] [<Curl options>] [<URL>]"
-    echo "Pass '-L' for Curl to follow redirections."
+    echo "Pass '-L' to Curl to follow redirections."
     echo ""
     exit 1
 fi
@@ -102,6 +102,7 @@ mainCurlLoop() {
             "remote":  "%{remote_ip}:%{remote_port}",\n
          "http_code":  %{http_code},\n
       "num_connects":  %{num_connects},\n
+             "local":  "%{local_ip}:%{local_port}",\n
       "size_request":  %{size_request},\n
      "size_download":  %{size_download},\n
    "time_namelookup":  %{time_namelookup},\n
