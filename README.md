@@ -1,6 +1,6 @@
 # Measure HTTP request/response times using Curl.
 
-Measures HTTP request/response times using Curl, with the output formatted as JSON.
+Measures HTTP request/response times using [Curl](https://curl.se/), with the output formatted as JSON.
 
 
 ## Usage
