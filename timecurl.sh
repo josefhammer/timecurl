@@ -104,6 +104,7 @@ mainCurlLoop() {
       "num_connects":  %{num_connects},\n
              "local":  "%{local_ip}:%{local_port}",\n
       "size_request":  %{size_request},\n
+       "size_upload":  %{size_upload},\n
      "size_download":  %{size_download},\n
    "time_namelookup":  %{time_namelookup},\n
   "time_pretransfer":  %{time_pretransfer},\n
