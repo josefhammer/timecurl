@@ -45,11 +45,11 @@ NUM_REQUESTS=1
 SLEEP=0
 STDIN=0
 ID=
-
+URL_PATH=
 
 # Parse command line params
 #
-while [[ $1 == "--loop" ]] || [[ $1 == "--sleep" ]] || [[ $1 == "--id" ]] || [[ $1 == "--stdin" ]]; do
+while [[ $1 == "--loop" ]] || [[ $1 == "--sleep" ]] || [[ $1 == "--id" ]] || [[ $1 == "--stdin" ]] || [[ $1 == "--path" ]]; do
     if [[ $1 == "--loop" ]]; then
         shift
         if [[ $1 -gt 1 ]]; then
@@ -72,6 +72,11 @@ while [[ $1 == "--loop" ]] || [[ $1 == "--sleep" ]] || [[ $1 == "--id" ]] || [[ 
         shift
         STDIN=1
     fi
+    if [[ $1 == "--path" ]]; then  # fixed path to be used
+        shift
+        URL_PATH=$1
+        shift
+    fi
 done
 
 
@@ -79,7 +84,7 @@ done
 #
 if [[ $# -lt 1 ]] && [[ $STDIN -eq 0 ]]
 then
-    echo "Usage: $0 [--loop <numRequests>] [--sleep <numSeconds>] [--id <ID>] [--stdin] [<Curl options>] [<URL>]"
+    echo "Usage: $0 [--loop <numRequests>] [--sleep <numSeconds>] [--id <ID>] [--stdin] [--path <PATH>] [<Curl options>] [<URL>]"
     echo "Pass '-L' to Curl to follow redirections."
     echo ""
     exit 1
@@ -98,8 +103,8 @@ mainCurlLoop() {
             fi
         fi
 
-        curl -s -o /dev/null -w @- "$@" <<'EOF'
-            "remote":  "%{remote_ip}:%{remote_port}",\n
+        curl -s -o /dev/null -w @- "$@" <<EOF
+            "remote":  "%{remote_ip}:%{remote_port}${URL_PATH}",\n
          "http_code":  %{http_code},\n
       "num_connects":  %{num_connects},\n
              "local":  "%{local_ip}:%{local_port}",\n
@@ -124,7 +129,7 @@ EOF
 echo "[{"
 
 if [[ $STDIN -eq 0 ]]; then
-    mainCurlLoop "$@"
+    mainCurlLoop "$@"$URL_PATH
 else
     # read URLs from stdin (one per line; format: [<ID>] URL)
     #
@@ -145,7 +150,7 @@ else
         else
             ID=$ORIG_ID
         fi
-        mainCurlLoop "$@" ${ADDR[0]}
+        mainCurlLoop "$@" "${ADDR[0]}$URL_PATH"
     done
 fi
 
