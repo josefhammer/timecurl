@@ -107,6 +107,7 @@ mainCurlLoop() {
             "remote":  "%{remote_ip}:%{remote_port}${URL_PATH}",\n
          "http_code":  %{http_code},\n
       "num_connects":  %{num_connects},\n
+                "id":  "${ID}",\n
              "local":  "%{local_ip}:%{local_port}",\n
       "size_request":  %{size_request},\n
        "size_upload":  %{size_upload},\n
@@ -118,8 +119,7 @@ mainCurlLoop() {
       "time_connect":  %{time_connect},\n
         "time_total":  %{time_total},\n
 EOF
-    echo "         \"exit_code\":  $?,"
-    echo "                \"id\":  \"$ID\""
+        echo "         \"exit_code\":  $?"
     done
 }
 
